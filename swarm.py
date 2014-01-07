@@ -8,6 +8,9 @@ import math
 def weibull(x,k,l):
     return (k/l) * math.pow(x/l,k-1) * math.exp( -math.pow( x/l, k) )
 
+def gaussian(x, mu, sigma):
+    return (1/(sigma * math.pow(2*3.14159,2)) * \
+            math.exp( -( math.pow(x - mu,2) / ( 2 * math.pow(sigma,2)  ))))
 
 class Fish:
     def __init__(self, width, height, depth, density):
@@ -24,17 +27,25 @@ class Fish:
         return
 
     def setVector(self, vector):
-        self.vector = vector
+        """Write the fish's vector to a buffer to be used on the next timestep.
+        """
+
+        self.future_vector = vector
         return
 
-    def move(self, vector, timestep):
+    def move(self, timestep):
         """Read the vectors and move accordingly."""
 
-        self.x += vector[0] * timestep
-        self.y += vector[1] * timestep
-        self.z += vector[2] * timestep
+        self.vector = self.future_vector
 
-        print("Moving {0} x {1} x {2}".format(vector[0], vector[1], vector[2]))
+        self.x += self.vector[0] * timestep
+        self.y += self.vector[1] * timestep
+        self.z += self.vector[2] * timestep
+
+        print("Moving {0} x {1} x {2}".format(self.vector[0], 
+                                              self.vector[1], 
+                                              self.vector[2])
+                                              )
 
         return
 
@@ -72,7 +83,7 @@ class Swarm:
         for x in range(0, n):
             self.swarm.append(Fish(width, height, depth, d))
 
-    def evaluate(self, timestep):
+    def evaluate(self, w, timestep):
         """Evaluate the swarm as individuals, choosing each randomly with 
         exclusion."""
 
@@ -87,11 +98,8 @@ class Swarm:
 
                 for coord in range(0,3):
 
-                    # For the sake of this version, I'm using a Weibull
-                    # distribution to handle coheasion
-
-                    k = 6
-                    l = 5
+                    # For the sake of this version, I'm using a Gaussian and
+                    # Weibull distributions to handle coheasion.
 
                     magnatude = abs(location[coord] - position[coord])
                     direction = 1
@@ -100,18 +108,37 @@ class Swarm:
                         direction = -direction
 
                     if magnatude > 0 :
-                        vector[coord] += direction * weibull(magnatude, k, l)
+                        vector[coord] += direction * gaussian(magnatude, 5, 2) * 5
                         vector[coord] += -direction * weibull(magnatude, 1, 0.125) / 20
                     else:
                         vector[coord] +=  0
 
-                #print("{0} + {1} = {2}".format(position[0], location[0], vector[0]))
+
+                # In these intial stages, it may be best to use a form of
+                # circular current. Vector velocity is based on angular
+                # velocity w.
+        
+            distance = math.pow( math.pow(5 - position[0],2) + \
+                                 math.pow(5 - position[2],2) , -2)
+
+            v = w *  gaussian(distance, 5, 3) * 5
+            angle =  math.tan( (5 - position[2] ) /  (5 - position[0] ) ) - \
+                        (3.14159 / 2)
+                                          
+
+            vector[0] += v * math.cos(angle)
+            vector[2] +=  -v * math.sin(angle)
+                
+            
+            #print w, distance, v, angle, v *  math.cos(angle), v * math.sin(angle)
+
+                    
 
             self.swarm[locus].setVector(vector)
 
-        for index in range(0,len(self.swarm)):
+        for fish in self.swarm:
         
-            self.swarm[index].move(self.swarm[index].getVector(), timestep)
+            fish.move(timestep)
 
         return
 
@@ -132,18 +159,17 @@ class Swarm:
         global TIME
         swarmFile = file(TIME + '/swarm_{0}{1}{2}.csv'.format(spacer,spacer2,t), 'w')
 
-        swarmFile.write('"fish","x","y","z","i","j","k"\n')
-        for f in range(0,len(self.swarm)):
-            location = self.swarm[f].getLocation()
-            vector = self.swarm[f].getVector()
-            swarmFile.write('{3},{0},{1},{2},{4},{5},{6}\n'.format(location[0], 
+        swarmFile.write('"x","y","z","i","j","k"\n')
+        for fish in self.swarm:
+            location = fish.getLocation()
+            vector = fish.getVector()
+            swarmFile.write('{0},{1},{2},{3},{4},{5}\n'.format(location[0], 
                                            location[1], 
                                            location[2],
-                                           f,
                                            vector[0],
                                            vector[1],
                                            vector[2]))
-
+            print location
         swarmFile.close()
         return 
 
@@ -156,9 +182,10 @@ WORLD_DEPTH = 10
 
 SIMULATION_TIMESTEP = 0.5
 SIMULATION_TIME = 100
+SIMULATION_SPIN = 100
 
 SWARM_NUMBER_FISH = 20
-SWARM_DENSITY = 3
+SWARM_DENSITY = 4
 SWARM_RADIUS = 1
 SWARM_DAMPEN = 1
 
@@ -179,5 +206,5 @@ swarm = Swarm(SWARM_NUMBER_FISH,
 for tick in range(0,SIMULATION_TIME):
     
     swarm.write(tick)
-    swarm.evaluate(SIMULATION_TIMESTEP)
+    swarm.evaluate(SIMULATION_SPIN,SIMULATION_TIMESTEP)
     print("==========")

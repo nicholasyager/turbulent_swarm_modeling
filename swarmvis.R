@@ -15,18 +15,30 @@ for (i in 1:length(swarmfiles)){
   
     print(i)    
 
+    colors = rainbow(length(swarm$x))
+    
     aspect3d(x=1, y=1, z=1)
-    plot3d(x=swarm$x, y=swarm$y, z=swarm$z, col="black",xlim=c(0,10), ylim=c(0,10), zlim=c(0,10) )
+    plot3d(x=swarm$x, y=swarm$y, z=swarm$z, col=colors,xlim=c(0,10), ylim=c(0,10), zlim=c(0,10) )
     
-    for (i in 1:length(swarm$x)) {
-      rgl.lines(c(swarm$x[i], swarm$x[i] + swarm$i[i]), c(swarm$y[i], swarm$y[i] + swarm$j[i]), c(swarm$z[i],swarm$z[i] + swarm$k[i]), col="black")
+    n = 200
+    theta <- seq(0, 2*pi, len=n)
+    
+    x <- 5 + 5 * cos(theta)
+    x2 <- 5 + 7 * cos(theta)
+    x3 <- 5 + 3 * cos(theta)
+    z <- 5 + 5 * sin(theta)
+    z2 <- 5 + 7 * sin(theta) 
+    z3 <- 5 + 3 * sin(theta) 
+    y <- rep(5, n) 
+    lines3d(x,y,z)
+    lines3d(x2,y,z2, col="gray") 
+    lines3d(x3,y,z3, col="gray") 
+    
+    rgl.lines(c(5,5), c(0, 10), c(5,5),col="gray")
+    
+    for (j in 1:length(swarm$x)) {
+      rgl.lines(c(swarm$x[j], swarm$x[j] + swarm$i[j]), c(swarm$y[j], swarm$y[j] + swarm$j[j]), c(swarm$z[j],swarm$z[j] + swarm$k[j]), col=colors[j])
     }
-    
-    mtext3d("x", 'x', col="black")
-    mtext3d("y", 'y', col="black")
-    mtext3d("z", 'z', col="black")
- 
-    rgl.texts(0,0,0, i, col="black")
     
     rgl.snapshot(paste("swarm_",value,".png",sep=""))
 }
