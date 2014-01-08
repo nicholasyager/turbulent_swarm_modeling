@@ -118,19 +118,37 @@ class Swarm:
                 # circular current. Vector velocity is based on angular
                 # velocity w.
         
-            distance = math.pow( math.pow(5 - position[0],2) + \
-                                 math.pow(5 - position[2],2) , -2)
+            distance = math.sqrt( math.pow(5 - position[0],2) + \
+                                 math.pow(5 - position[2],2))
 
             v = w *  gaussian(distance, 5, 3) * 5
-            angle =  math.tan( (5 - position[2] ) /  (5 - position[0] ) ) - \
-                        (3.14159 / 2)
-                                          
+            angle =  math.atan( (position[2] - 5 ) /  (position[0] - 5) )
+
+            print angle
+        
+            # Quadrant II
+            if position[0] < 5 and position[2] > 5:
+                angle = 3.14159 + angle
+
+            # Quadrant III
+            elif position[0] < 5 and position[2] < 5:
+                angle = 3.14159 + angle
+
+            # Quadrant IV
+            elif position[0] > 5 and position[2] < 5:
+                angle = (2 * 3.14159) + angle 
+
+            print angle
+
+            angle -= (3.14159/2)
+
+            print angle
 
             vector[0] += v * math.cos(angle)
-            vector[2] +=  -v * math.sin(angle)
+            vector[2] +=  v * math.sin(angle)
                 
             
-            #print w, distance, v, angle, v *  math.cos(angle), v * math.sin(angle)
+            print w, distance, v, (angle * 180)/3.14159, v *  math.cos(angle), v * math.sin(angle)
 
                     
 
@@ -184,7 +202,7 @@ SIMULATION_TIMESTEP = 0.5
 SIMULATION_TIME = 100
 SIMULATION_SPIN = 100
 
-SWARM_NUMBER_FISH = 20
+SWARM_NUMBER_FISH = 1
 SWARM_DENSITY = 4
 SWARM_RADIUS = 1
 SWARM_DAMPEN = 1

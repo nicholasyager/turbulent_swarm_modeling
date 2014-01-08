@@ -18,7 +18,7 @@ for (i in 1:length(swarmfiles)){
     colors = rainbow(length(swarm$x))
     
     aspect3d(x=1, y=1, z=1)
-    plot3d(x=swarm$x, y=swarm$y, z=swarm$z, col=colors,xlim=c(0,10), ylim=c(0,10), zlim=c(0,10) )
+    plot3d(x=swarm$x, y=swarm$y, z=swarm$z, col=colors,xlim=c(-5,15), ylim=c(-5,15), zlim=c(-5,15) )
     
     n = 200
     theta <- seq(0, 2*pi, len=n)
