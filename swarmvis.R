@@ -34,7 +34,7 @@ for (i in 1:length(swarmfiles)){
     lines3d(x2,y,z2, col="gray") 
     lines3d(x3,y,z3, col="gray") 
     
-    rgl.lines(c(5,5), c(0, 10), c(5,5),col="gray")
+    rgl.lines(c(5,5), c(-5, 15), c(5,5),col="gray")
     
     for (j in 1:length(swarm$x)) {
       rgl.lines(c(swarm$x[j], swarm$x[j] + swarm$i[j]), c(swarm$y[j], swarm$y[j] + swarm$j[j]), c(swarm$z[j],swarm$z[j] + swarm$k[j]), col=colors[j])

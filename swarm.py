@@ -12,23 +12,39 @@ def gaussian(x, mu, sigma):
     return (1/(sigma * math.pow(2*3.14159,2)) * \
             math.exp( -( math.pow(x - mu,2) / ( 2 * math.pow(sigma,2)  ))))
 
-def findClose(swarm, fish, n):
-    """Return the closest n fish to a given fish within a swarm."""
+def generateCurrent(position, currentType, w):
 
-    position = fish.getLocation()
+        # In these intial stages, it may be best to use a form of
+        # circular current. Vector velocity is based on angular
+        # velocity w.
 
-    partners = []
+        distance = math.sqrt( math.pow(5 - position[0],2) + \
+                             math.pow(5 - position[2],2))
 
-    for otherFish in swarm:
-        if otherFish.ID != fish.ID:
-            distance = fish.getDistance(otherFish.getLocation)
-            partners.append( (distance,fish)
+        v = w *  gaussian(distance, 5, 3) * 5
+        angle =  math.atan( (position[2] - 5 ) /  (position[0] - 5) )
 
+        # Quadrant II
+        if position[0] < 5 and position[2] > 5:
+            angle = 3.14159 + angle
 
-    partners.sort()
+        # Quadrant III
+        elif position[0] < 5 and position[2] < 5:
+            angle = 3.14159 + angle
 
+        # Quadrant IV
+        elif position[0] > 5 and position[2] < 5:
+            angle = (2 * 3.14159) + angle
 
-    return partners[0:4]
+        angle -= (3.14159/2)
+
+        vector = [0,0,0]
+
+        vector[0] += v * math.cos(angle)
+        vector[2] +=  v * math.sin(angle)
+
+        return vector
+
 
 class Fish:
     def __init__(self, width, height, depth, density):
@@ -75,6 +91,26 @@ class Fish:
 
         return
 
+    def findClosest(self, swarm, n):
+        """Return the closest n fish to a given fish within a swarm."""
+
+        position = self.getLocation()
+
+        partners = []
+
+        for otherFish in swarm:
+            if otherFish.ID != self.ID:
+                otherLocation = otherFish.getLocation()
+                distance = self.getDistance( otherLocation )
+                partners.append( (distance,otherFish) )
+
+
+        partners.sort()
+
+
+        return partners[:n]
+
+
     # Reporter functons
 
     def getLocation(self):
@@ -90,7 +126,9 @@ class Fish:
         """Returns the cartesian distance between this fish and a different
         location."""
 
-        return math.exp(  math.exp(location[0] - self.x,2) +  math.exp(location[1] - self.y,2) +  math.exp(location[2] - self.z,2), -2)
+        return math.sqrt(  math.pow(location[0] - self.x,2) + \
+                          math.pow(location[1] - self.y,2) + \
+                          math.pow(location[2] - self.z,2))
 
 
 class Swarm:
@@ -118,62 +156,35 @@ class Swarm:
         for locus in range(0,len(self.swarm)):
             vector = [0,0,0]
 
-            position = self.swarm[locus].getLocation()
+            locusFish = self.swarm[locus]
 
-            for fish in self.swarm:
+            position = locusFish.getLocation()
+
+            closestFish = locusFish.findClosest(self.swarm,5)
+
+
+            for distance, fish in closestFish:
                 location = fish.getLocation()
 
+                magnatude = gaussian(distance, 3, 2) * 10
+                magnatude -= gaussian(distance, 0, 1) * 3
 
                 for coord in range(0,3):
 
                     # For the sake of this version, I'm using a Gaussian and
                     # Weibull distributions to handle coheasion.
 
-                    magnatude = abs(location[coord] - position[coord])
-                    direction = 1
-
-                    if location[coord] - position[coord] < 0:
-                        direction = -direction
-
-                    if magnatude > 0 :
-                        vector[coord] += direction * gaussian(magnatude, 3, 2) * 5
-                        vector[coord] += -direction * weibull(magnatude, 1, 0.125) / 18
-                    else:
-                        vector[coord] +=  0
-
-
-                # In these intial stages, it may be best to use a form of
-                # circular current. Vector velocity is based on angular
-                # velocity w.
-
-            distance = math.sqrt( math.pow(5 - position[0],2) + \
-                                 math.pow(5 - position[2],2))
-
-            v = w *  gaussian(distance, 5, 3) * 5
-            angle =  math.atan( (position[2] - 5 ) /  (position[0] - 5) )
-
-            # Quadrant II
-            if position[0] < 5 and position[2] > 5:
-                angle = 3.14159 + angle
-
-            # Quadrant III
-            elif position[0] < 5 and position[2] < 5:
-                angle = 3.14159 + angle
-
-            # Quadrant IV
-            elif position[0] > 5 and position[2] < 5:
-                angle = (2 * 3.14159) + angle
-
-            angle -= (3.14159/2)
-
-            vector[0] += v * math.cos(angle)
-            vector[2] +=  v * math.sin(angle)
-
+                    vector[coord] += magnatude * ( (location[coord] - position[coord]) / \
+                                      distance )
 
             #print w, distance, v, (angle * 180)/3.14159, v *  math.cos(angle), v * math.sin(angle)
 
+            currentVector = generateCurrent( position, "circle", w)
 
+            for coord in range(0, 3):
+                vector[coord] += currentVector[coord]
 
+            #print(vector)
             self.swarm[locus].setVector(vector)
 
         for fish in self.swarm:
@@ -220,11 +231,11 @@ WORLD_WIDTH = 10 # Arbitrarily set width
 WORLD_HEIGHT = 10
 WORLD_DEPTH = 10
 
-SIMULATION_TIMESTEP = 0.1
+SIMULATION_TIMESTEP = 1
 SIMULATION_TIME = 100
-SIMULATION_SPIN = 100
+SIMULATION_SPIN = 10
 
-SWARM_NUMBER_FISH = 40
+SWARM_NUMBER_FISH = 100
 SWARM_DENSITY = 4
 SWARM_RADIUS = 1
 SWARM_DAMPEN = 1

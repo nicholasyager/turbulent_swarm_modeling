@@ -15,5 +15,6 @@ and the <code>rlg</code> package.
 Usage
 ----
 Run <code>swarm.py</code>, and a .csv file is output for each time step listing
-the coordinates and headings of each fish.
+the coordinates and headings of each fish. Run R with the working directory set
+to the output folder, and source <code>swarm_vis.r</code> for the rgl output.
 
