@@ -12,17 +12,43 @@ def gaussian(x, mu, sigma):
     return (1/(sigma * math.pow(2*3.14159,2)) * \
             math.exp( -( math.pow(x - mu,2) / ( 2 * math.pow(sigma,2)  ))))
 
+def findClose(swarm, fish, n):
+    """Return the closest n fish to a given fish within a swarm."""
+
+    position = fish.getLocation()
+
+    partners = []
+
+    for otherFish in swarm:
+        if otherFish.ID != fish.ID:
+            distance = fish.getDistance(otherFish.getLocation)
+            partners.append( (distance,fish)
+
+
+    partners.sort()
+
+
+    return partners[0:4]
+
 class Fish:
     def __init__(self, width, height, depth, density):
         """Initialize a Fish object, giving it a random position at start."""
 
         # Set a
 
+        self.ID = 0
         self.x = random.gauss(width/2, density)
         self.y = random.gauss(height/2, density)
         self.z = random.gauss(depth/2, density)
 
         self.vector = [0,0,0]
+
+        return
+
+    def setID(self, ID):
+        """Save the ID number for this fish for later calculations."""
+
+        self.ID = ID
 
         return
 
@@ -81,7 +107,9 @@ class Swarm:
         self.swarm = []
         self.dampen = dampen
         for x in range(0, n):
-            self.swarm.append(Fish(width, height, depth, d))
+            newFish = Fish(width, height, depth, d)
+            newFish.setID(x)
+            self.swarm.append(newFish)
 
     def evaluate(self, w, timestep):
         """Evaluate the swarm as individuals, choosing each randomly with
