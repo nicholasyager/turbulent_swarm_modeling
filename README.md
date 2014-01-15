@@ -1,4 +1,4 @@
-Swarm
+Turbulent Swarm Modeling
 =====
 Eash element in the swarm is a theoretical "fish" which follows a heading
 vector based on it's surroundings.Swarm is a general simulation of swam behavior
@@ -10,11 +10,11 @@ as defined by three rules:
 Requirements
 ----
 This simulation requires *Python 2.7* and is currently visualized using 
-<code>Matlibplot</code>. 
+*Matlibplot*. 
 
 Usage
 ----
-Execute <code>swarm.py</code>, and matlibplot will render the swarm location for
+Execute <code>swarm.py</code>, and *matlibplot* will render the swarm location for
 each tick of the simulation. After running the simulation the script will 
 automatically scale and trim the rendered images, and splice the series into
 and animated gif.
