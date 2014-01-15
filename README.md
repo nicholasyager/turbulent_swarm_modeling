@@ -9,12 +9,18 @@ as defined by three rules:
 
 Requirements
 ----
-This simulation requires *Python 2.7* and is currently visualized using R 3.0.2
-and the <code>rlg</code> package.
+This simulation requires *Python 2.7* and is currently visualized using 
+<code>Matlibplot</code>. 
 
 Usage
 ----
-Run <code>swarm.py</code>, and a .csv file is output for each time step listing
-the coordinates and headings of each fish. Run R with the working directory set
-to the output folder, and source <code>swarm_vis.r</code> for the rgl output.
+Execute <code>swarm.py</code>, and matlibplot will render the swarm location for
+each tick of the simulation. After running the simulation the script will 
+automatically scale and trim the rendered images, and splice the series into
+and animated gif.
+
+The deprecated .csv output can be reactivated by uncommenting the associated
+line. All .csv outputs can be rendered with <code>rgl</code> by running
+<code>swarmvis.R</code> with the output directory set as the R working 
+directory.
 
