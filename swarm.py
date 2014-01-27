@@ -214,12 +214,20 @@ class Swarm:
             # Local group swarming
 
             closestFish = locusFish.findClosest(self.swarm,5)
+            localHeading = [0,0,0]
+
             for distance, fish in closestFish:
                 location = fish.getLocation()
-
+                heading = fish.getVector()
+                localHeading[0] += heading[0]
+                localHeading[1] += heading[1]
+                localHeading[1] += heading[1]
                 local_magnatude = gaussian(distance, 3, 2) * 10   # Attractor
                 local_magnatude -= gaussian(distance, 0, 1) * 3   # Repulsor
 
+            localHeading[0] = localHeading[0] / 5
+            localHeading[1] = localHeading[1] / 5
+            localHeading[2] = localHeading[2] / 5
 
             # Turbulent swarming
 
@@ -232,7 +240,17 @@ class Swarm:
                                         (location[coord] - position[coord]) / \
                                       distance )
 
-                vector[coord] += currentVector[coord] + local_component
+                vector[coord] += ((currentVector[coord] + local_component) + \
+                                 localHeading[coord])/2
+                # Check for boundries
+
+                
+
+                if (position[coord] < 0 and vector[coord] < 0):
+                    vector[coord] += position[coord]/2 * vector[coord]
+                if (position[coord] >= 10 and vector[coord] > 0):
+                    vector[coord] -= (position[coord] - 10) /2 * vector[coord]
+
 
             locusFish.setVector(vector)
 
@@ -302,11 +320,11 @@ WORLD_WIDTH = 10 # Arbitrarily set width
 WORLD_HEIGHT = 10
 WORLD_DEPTH = 10
 
-SIMULATION_TIMESTEP = 1
-SIMULATION_TIME = 100
-SIMULATION_SPIN = 10
+SIMULATION_TIMESTEP = 0.5
+SIMULATION_TIME = 1000
+SIMULATION_SPIN = 1
 
-SWARM_NUMBER_FISH = 250
+SWARM_NUMBER_FISH = 100
 SWARM_DENSITY = 4
 SWARM_RADIUS = 1
 SWARM_DAMPEN = 1
@@ -329,7 +347,7 @@ for axis in ax.w_xaxis, ax.w_yaxis, ax.w_zaxis:
         axis.gridlines.set_visible(False) 
         #axis.line.set_visible(False) 
 
-plt.show(block=False)
+#plt.show(block=False)
 
 ################### Simulate ###################################
 
@@ -360,7 +378,7 @@ for tick in range(0,SIMULATION_TIME):
     ## Properly name the file in a way to animate in the correct order.
     filenumber = pad( len(str(SIMULATION_TIME)) , "0", str(tick))
     plt.savefig(TIME+'/swarm_{0}.png'.format(filenumber),
-                dpi=200)
+                bbox_inches='tight')
 
     plt.draw()
 
@@ -379,16 +397,18 @@ for tick in range(0,SIMULATION_TIME):
 #       initial images will reduce the need for resizing in the future.
 # 3. Take all of the processed images and merge them into a .gif file.
 
-print("Triming images..."),
-call(["mogrify","-trim","+repage", TIME+"/*"])
-print(" Complete")
+#print("Triming images..."),
+#call(["mogrify","-trim","+repage", TIME+"/*"])
+#print(" Complete")
 
 print("Resizing Images..."),
-call(["mogrify","-resize","600x",TIME+"/*"])
+call(["mogrify","-resize","600x478!",TIME+"/*"])
 print(" Complete")
 
-print("Generating animation.gif..."),
-call(["convert","-delay", "10", "-loop","0", TIME+"/*", TIME+"/animation.gif"])
+print("Generating animation..."),
+call(["ffmpeg","-r", "15", "-pattern_type", "glob","-i", TIME+"/*.png",
+    "-c:v", "libx264", "pix_fmt", "yuv420p",
+    TIME+"/swarm.mp4"])
 print(" Complete")
 
 print("Simulation saved to "+TIME+"/")

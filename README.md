@@ -10,14 +10,14 @@ as defined by three rules:
 Requirements
 ----
 This simulation requires *Python 2.7* and is currently visualized using 
-*Matlibplot*. 
+*Matlibplot*. Animations are created using ffmpeg. 
 
 Usage
 ----
 Execute <code>swarm.py</code>, and *matlibplot* will render the swarm location for
 each tick of the simulation. After running the simulation the script will 
 automatically scale and trim the rendered images, and splice the series into
-and animated gif.
+an MPEG4 video.
 
 The deprecated .csv output can be reactivated by uncommenting the associated
 line. All .csv outputs can be rendered with <code>rgl</code> by running
