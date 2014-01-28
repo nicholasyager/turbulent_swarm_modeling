@@ -321,10 +321,10 @@ WORLD_HEIGHT = 10
 WORLD_DEPTH = 10
 
 SIMULATION_TIMESTEP = 0.5
-SIMULATION_TIME = 1000
+SIMULATION_TIME = 100
 SIMULATION_SPIN = 1
 
-SWARM_NUMBER_FISH = 100
+SWARM_NUMBER_FISH = 25
 SWARM_DENSITY = 4
 SWARM_RADIUS = 1
 SWARM_DAMPEN = 1
@@ -407,7 +407,7 @@ print(" Complete")
 
 print("Generating animation..."),
 call(["ffmpeg","-r", "15", "-pattern_type", "glob","-i", TIME+"/*.png",
-    "-c:v", "libx264", "pix_fmt", "yuv420p",
+    "-c:v", "libx264", "-pix_fmt", "yuv420p",
     TIME+"/swarm.mp4"])
 print(" Complete")
 
