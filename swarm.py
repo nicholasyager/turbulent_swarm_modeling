@@ -313,7 +313,7 @@ class Swarm:
         swarmFile.close()
         return
 
-
+random.seed(100) # Set an arbitrary seed!
 
 # Set the world variables
 WORLD_WIDTH = 10 # Arbitrarily set width
